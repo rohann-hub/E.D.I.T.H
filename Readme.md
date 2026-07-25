@@ -139,9 +139,3 @@ Lead Collection
 4. Share pricing and project timelines
 5. Collect customer requirements and contact details
 6. End the call politely
-
----
-
-## License
-
-Add license details here (e.g., MIT, proprietary, etc.)
