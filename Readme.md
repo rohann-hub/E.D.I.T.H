@@ -48,6 +48,9 @@ Create a `.env` file in the project root:
 
 ```env
 GOOGLE_API_KEY=YOUR_GEMINI_API_KEY
+VIDEOSDK_API_KEY=your_videosdk_api_key_here
+VIDEOSDK_SECRET_KEY=your_videosdk_secret_key_here
+
 
 ```
 
