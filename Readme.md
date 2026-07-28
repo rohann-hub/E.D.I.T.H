@@ -1,5 +1,7 @@
 # E.D.I.T.H - AI Voice Support Agent
 
+![E.D.I.T.H Logo](assets/E.D.I.T.H_rhn.png)
+
 A real-time AI voice customer support agent built with **Python**, **VideoSDK Agents**, and the **Google Gemini Realtime API**. The agent handles customer calls, shares information about GODIMS services, and collects project leads automatically.
 
 ---
