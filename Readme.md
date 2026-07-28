@@ -1,4 +1,4 @@
-# GODIMS AI Voice Support Agent
+# E.D.I.T.H - AI Voice Support Agent
 
 A real-time AI voice customer support agent built with **Python**, **VideoSDK Agents**, and the **Google Gemini Realtime API**. The agent handles customer calls, shares information about GODIMS services, and collects project leads automatically.
 
@@ -30,7 +30,7 @@ A real-time AI voice customer support agent built with **Python**, **VideoSDK Ag
 ## Project Structure
 
 ```text
-godims-voice-agent/
+E.D.I.T.H-voice-agent/
 ├── main.py
 ├── .env
 ├── requirements.txt
@@ -45,6 +45,7 @@ Create a `.env` file in the project root:
 
 ```env
 GOOGLE_API_KEY=YOUR_GEMINI_API_KEY
+
 ```
 
 ---
