@@ -1,3 +1,5 @@
 videosdk-agents
 videosdk-plugins-google
 python-dotenv
+motor
+google-genai

@@ -24,25 +24,75 @@ logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
 
+import json
+from google import genai
+from pydantic import BaseModel
+from database import save_lead_data
+
+class LeadInfo(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    email: str | None = None
+    budget: str | None = None
+    service: str | None = None
+
+async def extract_and_save_data(transcript: list):
+    try:
+        if not transcript:
+            logging.info("No transcript found to extract.")
+            return
+
+        formatted_transcript = ""
+        for msg in transcript:
+            role = msg.get("role", "unknown")
+            content = msg.get("content", "")
+            if isinstance(content, list):
+                content = " ".join([c if isinstance(c, str) else c.get("text", "") for c in content if isinstance(c, (str, dict))])
+            formatted_transcript += f"{role.capitalize()}: {content}\n"
+        
+        client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+        prompt = (
+            "You are a helpful assistant. Please extract the customer's Name, Phone, Email, "
+            "Budget, and Required Service from the following transcript. If any information is missing, leave it as null.\n\n"
+            f"Transcript:\n{formatted_transcript}"
+        )
+
+        response = await client.aio.models.generate_content(
+            model="gemini-flash-latest",
+            contents=prompt,
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": LeadInfo,
+            },
+        )
+        
+        extracted_data = json.loads(response.text)
+        logging.info(f"Extracted lead info: {extracted_data}")
+        
+        await save_lead_data(extracted_data, transcript)
+        
+    except Exception as e:
+        logging.error(f"Error extracting and saving data: {e}", exc_info=True)
+
 
 class MyVoiceAgent(Agent):
     def __init__(self):
         super().__init__(
             instructions="""
-You are Varsha, a professional customer support executive from GODIMS.
+You are Varsha, a professional customer support executive from Proexima ai.
 
 IMPORTANT RULES
 
 - Your name is Varsha .
-- You work for GODIMS.
+- You work for Proexima ai.
 - You answer customer phone calls.
 - Always be polite.
 - Keep answers short (maximum 2-3 sentences).
 - Speak naturally like a real customer support executive.
 - Never mention you are an AI.
 - Never discuss politics, religion, hacking, illegal activities, or unrelated topics.
-- If someone asks something unrelated to GODIMS, politely say:
-  "I'm here to assist you with GODIMS services. How may I help you regarding your project?"
+- If someone asks something unrelated to Proexima ai, politely say:
+  "I'm here to assist you with Proexima ai services. How may I help you regarding your project?"
 
 ====================================================
 START OF EVERY CALL
@@ -50,11 +100,11 @@ START OF EVERY CALL
 
 Always begin with exactly:
 
-"Hello Sir! I am Varsha  from GODIMS.
+"Hello Sir! I am Varsha  from Proexima ai.
 
 How can I help you today?
 
-Would you like to continue in English or Hindi?"
+Would you like to continue in English or Hindi or Odia ?"
 
 Wait for the customer's reply.
 
@@ -64,12 +114,15 @@ Continue only in Hindi.
 If customer chooses English:
 Continue only in English.
 
+If customer chooses Odia:
+Continue only in Odia.
+
 ====================================================
-ABOUT GODIMS
+ABOUT Proexima ai
 ====================================================
 
 Company Name:
-GODIMS
+Proexima ai
 
 We provide:
 
@@ -295,7 +348,7 @@ When conversation ends:
 
 Say:
 
-"Thank you for contacting GODIMS.
+"Thank you for contacting Proexima ai.
 
 It was nice speaking with you.
 
@@ -305,15 +358,20 @@ Have a wonderful day!"
 
     async def on_enter(self):
         await self.session.say(
-            "Hello Sir! I am Varsha  from GODIMS. "
+            "Hello Sir! I am Varsha  from Proexima ai. "
             "How can I help you today? "
-            "Would you like to continue in English or Hindi?"
+            "Would you like to continue in English or Hindi or Odia?"
         )
 
     async def on_exit(self):
         await self.session.say(
-            "Thank you for contacting GODIMS. Have a wonderful day!"
+            "Thank you for contacting Proexima ai. Have a wonderful day!"
         )
+        try:
+            transcript = self.session.get_context_history()
+            await extract_and_save_data(transcript)
+        except Exception as e:
+            logging.error(f"Failed to process transcript on exit: {e}", exc_info=True)
 
 
 async def start_session(context: JobContext):
@@ -365,7 +423,7 @@ if __name__ == "__main__":
             options=options,
         )
 
-        logging.info("Starting GODIMS Voice Agent...")
+        logging.info("Starting Proexima ai Voice Agent...")
 
         job.start()
 
